@@ -31,6 +31,7 @@ for i in range(0, num_episodes):
 ```
 """
 
+# importing necessary packages
 import re
 import json
 
@@ -212,12 +213,13 @@ geoplot_template = """
 </html>
 """
 
-
+# this function retrieves a value from state by separating the var path with "/"" 
 def read_var(state, var):
     return get_by_path(state, re.split("/", var))
 
 
 class GeoPlot:
+	# this function(constructor) initializes the the configuration settings and visualization options 
     def __init__(self, config, options):
         self.config = config
         (
@@ -234,6 +236,7 @@ class GeoPlot:
             options["visualization_type"],
         )
 
+	# this function generates a visualization of a stimulation
     def render(self, state_trajectory):
         coords, values = [], []
         name = self.config["simulation_metadata"]["name"]
@@ -247,7 +250,9 @@ class GeoPlot:
                 np.array(read_var(final_state, self.entity_property)).flatten().tolist()
             )
 
+		# start time for stimulation is stored here
         start_time = pd.Timestamp.utcnow()
+        # generate timestamp
         timestamps = [
             start_time + pd.Timedelta(seconds=i * self.step_time)
             for i in range(
@@ -275,9 +280,11 @@ class GeoPlot:
                 )
             geojsons.append({"type": "FeatureCollection", "features": features})
 
+		# write the geoJSON data to a file
         with open(geodata_path, "w", encoding="utf-8") as f:
             json.dump(geojsons, f, ensure_ascii=False, indent=2)
 
+		#  generate the HTML template that contains code to render the plot using Cesium Ion
         tmpl = Template(geoplot_template)
         with open(geoplot_path, "w", encoding="utf-8") as f:
             f.write(
